@@ -10,8 +10,11 @@ from tensorflow.keras.callbacks import TensorBoard #Lb para observar el funciona
 from tensorflow.keras.preprocessing.image import ImageDataGenerator #lib para modificar mis img
 
 #------Direcciones de imagenes-----------
-entrenamiento = r'C:/Users/ERTECH/Desktop/Dataset'
-validacion = r'C:/Users/ERTECH/Desktop/Dataset'
+#entrenamiento = r'C:/Users/ERTECH/Desktop/Dataset'
+#validacion = r'C:/Users/ERTECH/Desktop/Dataset'
+
+entrenamiento = r'C:/Users/brayd/Desktop/Dataset'
+validacion = r'C:/Users/brayd/Desktop/Dataset'
 
 listaTrain = os.listdir(entrenamiento)
 listaTest = os.listdir(validacion)
@@ -37,7 +40,7 @@ con2 = 0
 #Entrenamiento
 for nameDir in listaTrain:
     nombre = entrenamiento + '/' + nameDir # Leemos las fotos
-
+    print(nombre) 
     for fileName in os.listdir(nombre): #Asignamos las etquetas a cada foto
         etiquetas.append(con) #valor de la etiqueta(asignamios 0 a la primera etiqueda y 1 a la segunda)
         img = cv2.imread(nombre + '/' + fileName, 0) #Leemos la imagen
@@ -136,20 +139,22 @@ ModeloCNN2 = tf.keras.models.Sequential([
 #cOMPILAMOS LOS MODELOS: AGREGAMOS EL OPTMIZADOR Y LA FUNCION DE PERDIDA
 ModeloDenso.compile(optimizer = 'adam',
                     loss = 'binary_crossentropy',
-                    metric = ['accuracy'])
+                    metrics = ['accuracy'])
 
 ModeloCNN.compile(optimizer = 'adam',
                     loss= 'binary_crossentropy',
-                    metric = ['accuracy'])
+                    metrics = ['accuracy'])
 
 ModeloCNN2.compile(optimizer = 'adam',
                     loss= 'binary_crossentropy',
-                    metric = ['accuracy'])
+                    metrics = ['accuracy'])
 
 #Observaremos y entrenaremos nuestras redes
 #para  visualizar: tensordboard --logdir="C:/Users/ERTECH/Desktop/"
+#para  visualizar: tensorboard --logdir="C:/Users/brayd/Desktop/Procesos"
 #Entrenamos el modelo Denso
-BoardDenso = TensorBoard(log_dir='C:/Users/ERTECH/Desktop/')
+#BoardDenso = TensorBoard(log_dir='C:/Users/ERTECH/Desktop/')
+BoardDenso = TensorBoard(log_dir='C:/Users/brayd/Desktop/Procesos')
 ModeloDenso.fit(imgTrain, batch_size = 32, validation_data = (fotos2,etiquetas2),
                 epochs = 100, callbacks = [BoardDenso], steps_per_epoch = int(np.ceil(len(fotos) / float(32))),
                 validation_steps = int(np.ceil(len(fotos2) / float(32))))
@@ -159,7 +164,8 @@ ModeloDenso.save_weights('pesosDenso.h5')
 print("Terminamos Modelo denso")
 
 #Entrenamos CNN sin 00
-BoardCNN = TensorBoard(log_dir='C:/Users/ERTECH/Desktop/')
+#BoardCNN = TensorBoard(log_dir='C:/Users/ERTECH/Desktop/')
+BoardCNN = TensorBoard(log_dir='C:/Users/brayd/Desktop/Procesos')
 ModeloCNN.fit(imgTrain, batch_size = 32, validation_data = (fotos2,etiquetas2),
                 epochs = 100, callbacks = [BoardCNN], steps_per_epoch = int(np.ceil(len(fotos) / float(32))),
                 validation_steps = int(np.ceil(len(fotos2) / float(32))))
@@ -169,7 +175,8 @@ ModeloCNN.save_weights('pesosCNN.h5')
 print("Terminamos Modelo CNN 1")
 
 #Entrenamos CNN con 00
-BoardCNN2 = TensorBoard(log_dir='C:/Users/ERTECH/Desktop/')
+#BoardCNN2 = TensorBoard(log_dir='C:/Users/ERTECH/Desktop/')
+BoardCNN2 = TensorBoard(log_dir='C:/Users/brayd/Desktop/Procesos')
 ModeloCNN2.fit(imgTrain, batch_size = 32, validation_data = (fotos2,etiquetas2),
                 epochs = 100, callbacks = [BoardCNN2], steps_per_epoch = int(np.ceil(len(fotos) / float(32))),
                 validation_steps = int(np.ceil(len(fotos2) / float(32))))
