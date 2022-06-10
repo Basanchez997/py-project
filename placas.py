@@ -8,7 +8,8 @@ import time
 #Video captura
 #video="http://192.168.0.107:31522/videostream.cgi?user=admin&pwd=888888" 
 #video = 'lento.mp4'
-video = "http://192.168.0.128:4747/video"
+#video = "http://192.168.0.128:4747/video"
+video = "http://192.168.1.26:4747/video"
 #video = 0
 cap = cv2.VideoCapture(video)
 
@@ -22,7 +23,7 @@ def funcion_final(contornos = None):
     for contorno in contornos:
         area = cv2.contourArea(contorno)
         print(area)
-        if area > 10000:
+        if area > 11000:
             #Detectamos la placa
             x, y, ancho, alto = cv2.boundingRect(contorno)
 
@@ -67,7 +68,7 @@ def funcion_final(contornos = None):
                #     Mva[col, fil] = 255 - Max
                 #    print("Max",Max)
                  #   cv2.imshow("Mva", Mva)
-            cv2.imshow("umbral_limpio2", umbral_limpio2)
+            #cv2.imshow("umbral_limpio2", umbral_limpio2)
             #Binarizamos la imagen
             _, bin = cv2.threshold(umbral_limpio2, 150, 255, cv2.THRESH_BINARY)
 
@@ -75,8 +76,10 @@ def funcion_final(contornos = None):
             bin = bin.reshape(alp, anp)
             bin = Image.fromarray(bin)
             bin = bin.convert("L")
+            #print("alp",alp)
+            #print("anp",anp)
             #Nos aseguramos de tener un buen tamaño de la placa
-            if alp >= 100 and anp >= 200:
+            if alp >= 110 and anp >= 2500:
                 #Declaramos la direccion de Pyresseract
                 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
                 #Extraemos el texto
@@ -89,7 +92,7 @@ def funcion_final(contornos = None):
         
         
         
-            time.sleep(10)
+            time.sleep(20)
             break
     
 
@@ -127,7 +130,7 @@ while True:
     #Realizamos un recorte a nuestra zona de interes
     recorte = redmin[y1:y2, x1:x2]
     #prueba
-    recorte2 = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY)
+    #recorte2 = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY)
     #Reprocesamiento de la zona de interes
     mB = np.matrix(recorte[:, :, 0])
     mG = np.matrix(recorte[:, :, 1])
@@ -140,17 +143,18 @@ while True:
     #_, umbral = cv2.threshold(recorte2, 180, 200, cv2.THRESH_BINARY)
     umbral_limpio = cv2.dilate(umbral, None, iterations=1)
     #Extraemos los contornos de la zona seleccionada
-    contornos, _ = cv2.findContours(umbral_limpio, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    
+    contornos, _ = cv2.findContours(umbral_limpio, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(umbral_limpio, contornos, -1, (0,255,0), 3)
+    cv2.imshow("frame", umbral_limpio)
     #Primero los ordenamos del mas grande al mas pequeño
     contornos = sorted(contornos, key=lambda x : cv2.contourArea(x), reverse=True)
      #aqui iria la funcion
-    funcion_final(contornos)
+    #funcion_final(contornos)
             
     #Mostramos el reporte en gris
-    cv2.imshow("frame", frame)
+    #cv2.imshow("frame", frame)
     
-    cv2.imshow("redmin", redmin)
+    #cv2.imshow("redmin", redmin)
 
     #Leemos una tecla
     t = cv2.waitKey(1)
