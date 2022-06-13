@@ -8,8 +8,8 @@ import time
 #Video captura
 #video="http://192.168.0.107:31522/videostream.cgi?user=admin&pwd=888888" 
 #video = 'lento.mp4'
-#video = "http://192.168.0.128:4747/video"
-video = "http://192.168.1.26:4747/video"
+video = "http://192.168.0.128:4747/video"
+#video = "http://192.168.1.26:4747/video"
 #video = 0
 cap = cv2.VideoCapture(video)
 
@@ -22,7 +22,7 @@ def funcion_final(contornos = None):
     #Dibujamos los contornos extraidos
     for contorno in contornos:
         area = cv2.contourArea(contorno)
-        print(area)
+        #print(area)
         if area > 11000:
             #Detectamos la placa
             x, y, ancho, alto = cv2.boundingRect(contorno)
@@ -56,43 +56,32 @@ def funcion_final(contornos = None):
             
             #Creamos una mascara
 
-            #estamos el color verde y azul para sacar amarillo
-            Color2 = cv2.absdiff(mBp, mRp)
-            Color2 = cv2.absdiff(mBp, mRp, mGp)
+            Color2 = cv2.absdiff(mGp, mBp)
             #Binarizamos l aimagen
-            _, umbral2 = cv2.threshold(Color2, 150, 255, cv2.THRESH_BINARY)
-            umbral_limpio2 = cv2.dilate(umbral2, None, iterations=1)
-            #for col in range(0, alp):
-             #   for fil in range(0, anp):
-              #      Max = max(mRp[col,fil], mGp[col,fil], mBp[col, fil])
-               #     Mva[col, fil] = 255 - Max
-                #    print("Max",Max)
-                 #   cv2.imshow("Mva", Mva)
-            #cv2.imshow("umbral_limpio2", umbral_limpio2)
-            #Binarizamos la imagen
-            _, bin = cv2.threshold(umbral_limpio2, 150, 255, cv2.THRESH_BINARY)
-
-            #Covertimos la matriz en imagen
-            bin = bin.reshape(alp, anp)
-            bin = Image.fromarray(bin)
-            bin = bin.convert("L")
+            umbral2 = Color2
+            cv2.imshow("umbral2", umbral2)    
+        
+            umbral2 = umbral2.reshape(alp, anp)
+            umbral2 = Image.fromarray(umbral2)
+            umbral2 = umbral2.convert("L")
             #print("alp",alp)
             #print("anp",anp)
             #Nos aseguramos de tener un buen tamaño de la placa
-            if alp >= 110 and anp >= 2500:
+            if alp >= 200 and anp >= 300:
                 #Declaramos la direccion de Pyresseract
                 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
                 #Extraemos el texto
                 config = "--psm 1"
-                texto = pytesseract.image_to_string(umbral_limpio2, config=config)
-                print("aui",texto)
+                texto = pytesseract.image_to_string(umbral2, config=config)
+                
                 #If para no mostrar basura
                 if len(texto) >= 5:
                     Ctexto = texto
+                    print("aui",texto)
         
         
         
-            time.sleep(20)
+                    
             break
     
 
@@ -130,31 +119,28 @@ while True:
     #Realizamos un recorte a nuestra zona de interes
     recorte = redmin[y1:y2, x1:x2]
     #prueba
-    #recorte2 = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY)
-    #Reprocesamiento de la zona de interes
     mB = np.matrix(recorte[:, :, 0])
     mG = np.matrix(recorte[:, :, 1])
     mR = np.matrix(recorte[:, :, 2])
 
     #restamos el color verde y azul para sacar amarillo
-    Color = cv2.absdiff(mB, mR)
-    Color = cv2.absdiff(mB, mR, mG)
-    _, umbral = cv2.threshold(Color, 150, 255, cv2.THRESH_BINARY)
-    #_, umbral = cv2.threshold(recorte2, 180, 200, cv2.THRESH_BINARY)
-    umbral_limpio = cv2.dilate(umbral, None, iterations=1)
-    #Extraemos los contornos de la zona seleccionada
-    contornos, _ = cv2.findContours(umbral_limpio, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(umbral_limpio, contornos, -1, (0,255,0), 3)
-    cv2.imshow("frame", umbral_limpio)
+    #Color = cv2.absdiff(mB, mR)
+    Color = cv2.absdiff(mG, mB)
+    
+    #_, umbral = cv2.threshold(Color, 40, 255, cv2.THRESH_BINARY)
+    umbral = Color
+    contornos, _ = cv2.findContours(umbral, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.imshow("umbral", umbral)
     #Primero los ordenamos del mas grande al mas pequeño
     contornos = sorted(contornos, key=lambda x : cv2.contourArea(x), reverse=True)
      #aqui iria la funcion
-    #funcion_final(contornos)
+       
+    funcion_final(contornos)
             
     #Mostramos el reporte en gris
     #cv2.imshow("frame", frame)
     
-    #cv2.imshow("redmin", redmin)
+    cv2.imshow("redmin", redmin)
 
     #Leemos una tecla
     t = cv2.waitKey(1)
